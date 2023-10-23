@@ -23,7 +23,7 @@ or staging state.
 
 It is configurable through `/controlpanel/banner`.
 
-![image](https://user-images.githubusercontent.com/38378382/130647224-754af234-2de8-4d31-8eaa-6fa673df08a4.png)
+![image](https://raw.githubusercontent.com/eea/volto-banner/master/docs/volto-banner.png)
 
 ## Upgrades
 
