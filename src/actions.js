@@ -1,4 +1,4 @@
-import qs from 'querystring';
+import qs from 'query-string';
 import { GET_BANNER_CONFIG } from './constants';
 
 export function getBannerConfig() {
