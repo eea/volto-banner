@@ -60,13 +60,15 @@ Go to http://localhost:3000
 * If you already have a volto project, just update `package.json`:
 
    ```JSON
-   "addons": [
-       "@eeacms/volto-banner"
-   ],
-
    "dependencies": {
        "@eeacms/volto-banner": "*"
    }
+   ```
+
+   and `volto.config.js`:
+
+   ```JavaScript
+   const addons = ['@eeacms/volto-banner'];
    ```
 
 * If not, create one with Cookieplone, as recommended by the official Plone documentation for Volto 18+:
