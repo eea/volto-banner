@@ -51,6 +51,56 @@ const StagingBanner = ({ banner, token, dispatch }) => {
     setNode(document.querySelector(bannerConfig.parentNodeSelector));
   }, [bannerConfig.parentNodeSelector]);
 
+  React.useEffect(() => {
+    if (!node || !document?.body) {
+      return undefined;
+    }
+
+    const updateBannerOffset = () => {
+      const visibleBanners = Array.from(
+        node.querySelectorAll('.stagingBanner'),
+      );
+      const offset = visibleBanners.reduce(
+        (total, bannerNode) =>
+          total + bannerNode.getBoundingClientRect().height,
+        0,
+      );
+
+      if (offset > 0) {
+        document.body.style.setProperty(
+          '--staging-banner-offset',
+          `${offset}px`,
+        );
+      } else {
+        document.body.style.removeProperty('--staging-banner-offset');
+      }
+    };
+
+    updateBannerOffset();
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', updateBannerOffset);
+
+      return () => {
+        window.removeEventListener('resize', updateBannerOffset);
+        document.body.style.removeProperty('--staging-banner-offset');
+      };
+    }
+
+    const observer = new ResizeObserver(updateBannerOffset);
+
+    Array.from(node.querySelectorAll('.stagingBanner')).forEach(
+      (bannerNode) => {
+        observer.observe(bannerNode);
+      },
+    );
+
+    return () => {
+      observer.disconnect();
+      document.body.style.removeProperty('--staging-banner-offset');
+    };
+  }, [node, token, staticBannerVisible, dynamicBannerVisible, banner.config]);
+
   if (!node) return '';
 
   return (
