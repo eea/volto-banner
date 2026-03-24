@@ -40,3 +40,9 @@
     }
   }
 }
+
+body.has-banner {
+  .header-wrapper .header .search-wrapper .search .search-bar:not(.active) {
+    transform: translateY(calc(-1 * var(--staging-banner-offset, 0px)));
+  }
+}
