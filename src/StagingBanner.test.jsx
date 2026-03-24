@@ -4,7 +4,9 @@ import configureStore from 'redux-mock-store';
 import { render, waitFor } from '@testing-library/react';
 import StagingBanner from './StagingBanner';
 import { getBannerConfig } from '@eeacms/volto-banner/actions';
-import '@testing-library/jest-dom/extend-expect';
+import infoSVG from '@plone/volto/icons/info.svg';
+import closeSVG from '@plone/volto/icons/circle-dismiss.svg';
+import '@testing-library/jest-dom';
 
 const mockStore = configureStore([]);
 
@@ -33,8 +35,8 @@ describe('StagingBanner', () => {
             rancher_stacks_status: 'Dynamic Banner Status',
           },
           parentNodeSelector: '#testId',
-          bannerIcon: 'testIcon',
-          bannerCloseIcon: 'testCloseIcon',
+          bannerIcon: infoSVG,
+          bannerCloseIcon: closeSVG,
         },
       },
       actions: {
@@ -68,8 +70,8 @@ describe('StagingBanner', () => {
             rancher_stacks_status: 'Dynamic Banner Status',
           },
           parentNodeSelector: '#testId',
-          bannerIcon: 'testIcon',
-          bannerCloseIcon: 'testCloseIcon',
+          bannerIcon: infoSVG,
+          bannerCloseIcon: closeSVG,
         },
       },
       actions: {
