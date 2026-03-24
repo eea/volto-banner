@@ -12,6 +12,13 @@
     make start
     ```
 
+    To include Volto Light Theme in the standalone dev environment, set `VLT_ENABLED` to any non-empty value, for example:
+
+    ```Bash
+    VLT_ENABLED=1 make
+    VLT_ENABLED=1 make start
+    ```
+
 1. Wait for `Volto started at 0.0.0.0:3000` meesage
 
 1. Go to http://localhost:3000
