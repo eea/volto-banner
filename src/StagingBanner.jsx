@@ -4,8 +4,8 @@ import { Portal } from 'react-portal';
 import cx from 'classnames';
 import { Message, Container } from 'semantic-ui-react';
 import config from '@plone/volto/registry';
-import { Icon } from '@plone/volto/components';
-import { BodyClass } from '@plone/volto/helpers';
+import Icon from '@plone/volto/components/theme/Icon/Icon';
+import BodyClass from '@plone/volto/helpers/BodyClass/BodyClass';
 
 import { getBannerConfig } from '@eeacms/volto-banner/actions';
 
