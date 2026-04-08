@@ -3,7 +3,7 @@
  * @module reducers/data_providers
  */
 
-import { GET_BANNER_CONFIG } from '../constants';
+import { GET_BANNER_CONFIG } from '@eeacms/volto-banner/constants';
 
 const initialState = {
   config: {},
