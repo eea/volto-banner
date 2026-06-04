@@ -83,7 +83,7 @@ const StagingBanner = ({ banner, token, dispatch }) => {
 
       return () => {
         window.removeEventListener('resize', updateBannerOffset);
-        document.body.style.removeProperty('--staging-banner-offset');
+        document.body?.style.removeProperty('--staging-banner-offset');
       };
     }
 
@@ -97,7 +97,7 @@ const StagingBanner = ({ banner, token, dispatch }) => {
 
     return () => {
       observer.disconnect();
-      document.body.style.removeProperty('--staging-banner-offset');
+      document.body?.style.removeProperty('--staging-banner-offset');
     };
   }, [node, token, staticBannerVisible, dynamicBannerVisible, banner.config]);
 
