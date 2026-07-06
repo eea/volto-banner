@@ -20,8 +20,6 @@ RUN apt-get update -q \
     && apt-get install -qy --no-install-recommends \
        libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb \
     && rm -rf /var/lib/apt/lists/*
-USER node
-
 
 RUN set -eux; \
     mkdir -p /etc/apt/sources.list.d /etc/apt/preferences.d /etc/apt/apt.conf.d; \
@@ -39,6 +37,8 @@ RUN set -eux; \
       ; \
     apt-mark hold chromium chromium-common ; \
     rm -rf /var/lib/apt/lists/*
+
+USER node
 
 COPY --chown=node:node ./ /app/src/addons/${ADDON_PATH}/
 
