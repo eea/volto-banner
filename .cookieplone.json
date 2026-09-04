@@ -1,0 +1,7 @@
+{
+  "title": "Banner",
+  "frontend_addon_name": "volto-banner",
+  "description": "@eeacms/volto-banner: Volto add-on",
+  "volto_version": "19.3.0",
+  "__template__": "frontend_addon"
+}
