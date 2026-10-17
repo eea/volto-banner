@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -10,8 +11,8 @@ import '@testing-library/jest-dom';
 
 const mockStore = configureStore([]);
 
-jest.mock('@eeacms/volto-banner/actions', () => ({
-  getBannerConfig: jest.fn(),
+vi.mock('@eeacms/volto-banner/actions', () => ({
+  getBannerConfig: vi.fn(),
 }));
 
 describe('StagingBanner', () => {
@@ -49,7 +50,7 @@ describe('StagingBanner', () => {
       },
     });
 
-    store.dispatch = jest.fn();
+    store.dispatch = vi.fn();
   });
 
   it('dispatches getBannerConfig action on mount and does not display the banners', () => {
@@ -84,7 +85,7 @@ describe('StagingBanner', () => {
       },
     });
 
-    store.dispatch = jest.fn();
+    store.dispatch = vi.fn();
     render(
       <Provider store={store}>
         <StagingBanner />
@@ -128,7 +129,7 @@ describe('StagingBanner', () => {
         token: null,
       },
     });
-    store.dispatch = jest.fn();
+    store.dispatch = vi.fn();
 
     render(
       <Provider store={store}>
