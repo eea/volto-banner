@@ -16,6 +16,9 @@
     "type": "git",
     "url": "git@github.com:eea/volto-banner.git"
   },
+  "dependencies": {
+    "react-portal": "^4.3.0"
+  },
   "devDependencies": {
     "@cypress/code-coverage": "^3.10.0",
     "@plone/scripts": "workspace:*",
