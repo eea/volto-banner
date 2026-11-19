@@ -17,6 +17,19 @@ It is configurable through `/controlpanel/banner`.
 
 ## Upgrades
 
+### Upgrade to 6.x.x
+
+> This version requires `Volto 18` or `Volto 19` and Node.js 22.
+
+The banner keeps the same API and the same control panel settings, so upgrading from 5.x on Volto 18 needs no code changes. The release adds Volto 19 support and moves the repository to the Volto 19 layout, where the published package lives in `packages/volto-banner`.
+
+#### Breaking changes
+
+- **Node.js 22 or newer is required** (`engines.node >= 22`), 5.x declared no engine.
+- **React 18 is required.** The package declares `react` and `react-dom` as `^18.2.0` peers, 5.x declared no peers.
+
+The [eea.banner](https://github.com/eea/eea.banner) backend add-on is still required, as in 2.x and later. The package also declares `react-portal`, which it imports; 5.x relied on it being hoisted from the project.
+
 ### Upgrade to 2.x.x
 
 - Version `2.x.x` requires [eea.banner](https://github.com/eea/eea.banner) Plone add-on to be installed on backend.
