@@ -140,4 +140,32 @@ describe('StagingBanner', () => {
     expect(store.dispatch).toHaveBeenCalledTimes(1);
     expect(store.dispatch).toHaveBeenCalledWith(getBannerConfig());
   });
+
+  it('fetches the banner config again after login', () => {
+    const makeStore = (token) => {
+      const s = mockStore({
+        banner: { config: {} },
+        actions: { actions: { object: {} } },
+        userSession: { token },
+      });
+      s.dispatch = vi.fn();
+      return s;
+    };
+    const anonymous = makeStore(null);
+    const loggedIn = makeStore('token');
+
+    const { rerender } = render(
+      <Provider store={anonymous}>
+        <StagingBanner />
+      </Provider>,
+    );
+    expect(anonymous.dispatch).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <Provider store={loggedIn}>
+        <StagingBanner />
+      </Provider>,
+    );
+    expect(loggedIn.dispatch).toHaveBeenCalledWith(getBannerConfig());
+  });
 });

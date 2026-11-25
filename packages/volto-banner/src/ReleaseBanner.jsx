@@ -15,7 +15,8 @@ export const RELEASE_BANNER_COOKIE = 'eea_release_banner_dismissed';
 export const RELEASE_BANNER_COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
 
 /**
- * Announces a new release to authenticated users only.
+ * Announces a new release to authenticated users only. Its content comes
+ * from the release-notes agent files read by the backend.
  * Independent of the static / dynamic banners:
  * it has its own settings (release_banner in @banner) and, once closed,
  * stays hidden via a cookie until the release id (version) changes.
@@ -56,7 +57,8 @@ const ReleaseBanner = ({ banner, token }) => {
         <Container>
           <Message.Content>
             <Message.Header>{releaseBanner.title}</Message.Header>
-            <p dangerouslySetInnerHTML={{ __html: releaseBanner.message }} />
+            {/* Generated text: always rendered as text, never as HTML */}
+            <p>{releaseBanner.message}</p>
           </Message.Content>
           <div>
             {bannerConfig.bannerIcon && (

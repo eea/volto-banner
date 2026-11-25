@@ -33,9 +33,11 @@ const StagingBanner = ({ banner, token, dispatch }) => {
   const dynamicBanner = bannerConfig.dynamic_banner || {};
 
   React.useEffect(() => {
+    // Refetch on login / logout: the release banner is only sent to
+    // authenticated users.
     dispatch(getBannerConfig());
     /* eslint-disable-next-line */
-  }, []);
+  }, [token]);
 
   const [node, setNode] = React.useState(''),
     [staticBannerVisible, setStaticBannerVisible] = React.useState(true),

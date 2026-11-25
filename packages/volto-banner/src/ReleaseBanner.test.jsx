@@ -105,4 +105,19 @@ describe('ReleaseBanner', () => {
       expect(getByText('Release Title')).toBeInTheDocument();
     });
   });
+
+  it('renders the message as text, not HTML', async () => {
+    const { getByText } = renderBanner(
+      makeStore('token', {
+        message: '<img src="x" onerror="window.__xss = 1"> Faster search',
+      }),
+    );
+    await waitFor(() => {
+      expect(
+        getByText('<img src="x" onerror="window.__xss = 1"> Faster search'),
+      ).toBeInTheDocument();
+    });
+    expect(document.querySelector('.release-banner img')).toBeNull();
+    expect(window.__xss).toBeUndefined();
+  });
 });
