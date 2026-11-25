@@ -17,7 +17,6 @@ const makeStore = (token, release = {}) =>
       config: {
         release_banner: {
           enabled: true,
-          visible_to_all: false,
           id: '2.3.0',
           title: 'Release Title',
           message: 'Release Message',
@@ -60,20 +59,12 @@ describe('ReleaseBanner', () => {
     });
   });
 
-  it('is hidden for anonymous users unless visible_to_all', async () => {
-    const { queryByText, unmount } = renderBanner(makeStore(null));
+  it('is hidden for anonymous users', async () => {
+    const { queryByText } = renderBanner(makeStore(null));
     await waitFor(() => {
       expect(document.getElementById('releaseId')).toBeInTheDocument();
     });
     expect(queryByText('Release Title')).not.toBeInTheDocument();
-    unmount();
-
-    const { getByText } = renderBanner(
-      makeStore(null, { visible_to_all: true }),
-    );
-    await waitFor(() => {
-      expect(getByText('Release Title')).toBeInTheDocument();
-    });
   });
 
   it('is hidden when disabled', async () => {

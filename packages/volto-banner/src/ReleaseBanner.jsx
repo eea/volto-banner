@@ -12,7 +12,8 @@ import './less/stagingBanner.less';
 export const RELEASE_BANNER_COOKIE = 'eea_release_banner_dismissed';
 
 /**
- * Announces a new release. Independent of the static / dynamic banners:
+ * Announces a new release to authenticated users only.
+ * Independent of the static / dynamic banners:
  * it has its own settings (release_banner in @banner) and, once closed,
  * stays hidden via a cookie until the release id (version) changes.
  * The @banner config is fetched by StagingBanner.
@@ -41,10 +42,7 @@ const ReleaseBanner = ({ banner, token }) => {
 
   const dismissed =
     !!releaseBanner.id && cookies[RELEASE_BANNER_COOKIE] === releaseBanner.id;
-  const visible =
-    releaseBanner.enabled &&
-    !dismissed &&
-    (token || releaseBanner.visible_to_all);
+  const visible = releaseBanner.enabled && !dismissed && !!token;
 
   if (!node || !visible) return null;
 
