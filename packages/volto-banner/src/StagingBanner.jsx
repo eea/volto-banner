@@ -76,27 +76,40 @@ const StagingBanner = ({ banner, token, dispatch }) => {
       }
     };
 
-    updateBannerOffset();
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(updateBannerOffset);
 
-    if (typeof ResizeObserver === 'undefined') {
+    // Other banners (e.g. ReleaseBanner) render into the same node,
+    // so recompute whenever a banner is added or removed.
+    const observeBanners = () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+        Array.from(node.querySelectorAll('.stagingBanner')).forEach(
+          (bannerNode) => {
+            resizeObserver.observe(bannerNode);
+          },
+        );
+      }
+      updateBannerOffset();
+    };
+
+    const mutationObserver =
+      typeof MutationObserver === 'undefined'
+        ? null
+        : new MutationObserver(observeBanners);
+
+    observeBanners();
+    mutationObserver?.observe(node, { childList: true, subtree: true });
+    if (!resizeObserver) {
       window.addEventListener('resize', updateBannerOffset);
-
-      return () => {
-        window.removeEventListener('resize', updateBannerOffset);
-        document.body?.style.removeProperty('--staging-banner-offset');
-      };
     }
 
-    const observer = new ResizeObserver(updateBannerOffset);
-
-    Array.from(node.querySelectorAll('.stagingBanner')).forEach(
-      (bannerNode) => {
-        observer.observe(bannerNode);
-      },
-    );
-
     return () => {
-      observer.disconnect();
+      resizeObserver?.disconnect();
+      mutationObserver?.disconnect();
+      window.removeEventListener('resize', updateBannerOffset);
       document.body?.style.removeProperty('--staging-banner-offset');
     };
   }, [node, token, staticBannerVisible, dynamicBannerVisible, banner.config]);

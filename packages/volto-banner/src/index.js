@@ -1,4 +1,5 @@
 import StagingBanner from './StagingBanner';
+import ReleaseBanner from './ReleaseBanner';
 import * as addonReducers from './reducers';
 
 import infoSVG from '@plone/volto/icons/info.svg';
@@ -22,6 +23,10 @@ const applyConfig = (config) => {
     {
       match: '',
       component: StagingBanner,
+    },
+    {
+      match: '',
+      component: ReleaseBanner,
     },
   ];
 
