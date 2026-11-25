@@ -10,6 +10,9 @@ import BodyClass from '@plone/volto/helpers/BodyClass/BodyClass';
 import './less/stagingBanner.less';
 
 export const RELEASE_BANNER_COOKIE = 'eea_release_banner_dismissed';
+// The version decides when the banner shows again; the lifetime only
+// needs to outlast a release cycle.
+export const RELEASE_BANNER_COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
 
 /**
  * Announces a new release to authenticated users only.
@@ -35,10 +38,10 @@ const ReleaseBanner = ({ banner, token }) => {
     if (!releaseBanner.id) return;
     setCookie(RELEASE_BANNER_COOKIE, releaseBanner.id, {
       path: '/',
-      maxAge: (releaseBanner.dismiss_days || 90) * 24 * 60 * 60,
+      maxAge: RELEASE_BANNER_COOKIE_MAX_AGE,
       sameSite: 'lax',
     });
-  }, [releaseBanner.id, releaseBanner.dismiss_days, setCookie]);
+  }, [releaseBanner.id, setCookie]);
 
   const dismissed =
     !!releaseBanner.id && cookies[RELEASE_BANNER_COOKIE] === releaseBanner.id;

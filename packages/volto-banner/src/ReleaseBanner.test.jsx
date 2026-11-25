@@ -20,7 +20,6 @@ const makeStore = (token, release = {}) =>
           id: '2.3.0',
           title: 'Release Title',
           message: 'Release Message',
-          dismiss_days: 90,
           ...release,
         },
         parentNodeSelector: '#releaseId',
