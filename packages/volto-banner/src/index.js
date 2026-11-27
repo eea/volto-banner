@@ -35,6 +35,16 @@ const applyConfig = (config) => {
     ...addonReducers,
   };
 
+  if (__SERVER__) {
+    // Serves the release notes mounted from the helm chart (fs: server only).
+    const express = require('express');
+    const { releaseNotesMiddleware } = require('./server/releaseNotes');
+    config.settings.expressMiddleware = [
+      ...(config.settings.expressMiddleware || []),
+      releaseNotesMiddleware(express),
+    ];
+  }
+
   return config;
 };
 

@@ -11,17 +11,11 @@ import '@testing-library/jest-dom';
 
 const mockStore = configureStore([]);
 
-const makeStore = (token, release = {}) =>
+const makeStore = (token, enabled = true) =>
   mockStore({
     banner: {
       config: {
-        release_banner: {
-          enabled: true,
-          id: '2.3.0',
-          title: 'Release Title',
-          message: 'Release Message',
-          ...release,
-        },
+        release_banner: { enabled },
         parentNodeSelector: '#releaseId',
         bannerIcon: infoSVG,
         bannerCloseIcon: closeSVG,
@@ -29,6 +23,12 @@ const makeStore = (token, release = {}) =>
     },
     userSession: { token },
   });
+
+const mockNotes = (body, ok = true) => {
+  global.fetch = vi.fn(() =>
+    Promise.resolve({ ok, json: () => Promise.resolve(body) }),
+  );
+};
 
 const renderBanner = (store) => {
   store.dispatch = vi.fn();
@@ -41,6 +41,11 @@ const renderBanner = (store) => {
   );
 };
 
+const flush = () =>
+  waitFor(() => {
+    expect(document.getElementById('releaseId')).toBeInTheDocument();
+  });
+
 describe('ReleaseBanner', () => {
   beforeEach(() => {
     document.cookie = `${RELEASE_BANNER_COOKIE}=; path=/; max-age=0`;
@@ -48,70 +53,65 @@ describe('ReleaseBanner', () => {
     const parentNode = document.createElement('div');
     parentNode.setAttribute('id', 'releaseId');
     document.body.appendChild(parentNode);
+    mockNotes({ release: 'v2.6.0', summary: 'Faster search.' });
   });
 
-  it('shows to authenticated users', async () => {
+  it('shows the release notes from the Volto server when Plone allows it', async () => {
     const { getByText } = renderBanner(makeStore('token'));
     await waitFor(() => {
-      expect(getByText('Release Title')).toBeInTheDocument();
-      expect(getByText('Release Message')).toBeInTheDocument();
+      expect(getByText("What's new in v2.6.0")).toBeInTheDocument();
+      expect(getByText('Faster search.')).toBeInTheDocument();
     });
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/@@release-notes',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    );
   });
 
-  it('is hidden for anonymous users', async () => {
+  it('does not even ask for the notes for anonymous users', async () => {
     const { queryByText } = renderBanner(makeStore(null));
-    await waitFor(() => {
-      expect(document.getElementById('releaseId')).toBeInTheDocument();
-    });
-    expect(queryByText('Release Title')).not.toBeInTheDocument();
+    await flush();
+    expect(global.fetch).not.toHaveBeenCalled();
+    expect(queryByText("What's new in v2.6.0")).not.toBeInTheDocument();
   });
 
-  it('is hidden when disabled', async () => {
-    const { queryByText } = renderBanner(
-      makeStore('token', { enabled: false }),
-    );
-    await waitFor(() => {
-      expect(document.getElementById('releaseId')).toBeInTheDocument();
-    });
-    expect(queryByText('Release Title')).not.toBeInTheDocument();
+  it('is hidden when Plone does not enable it', async () => {
+    const { queryByText } = renderBanner(makeStore('token', false));
+    await flush();
+    expect(global.fetch).not.toHaveBeenCalled();
+    expect(queryByText("What's new in v2.6.0")).not.toBeInTheDocument();
   });
 
-  it('stays hidden after close for the same release id', async () => {
-    const { getByText, queryByText, unmount } = renderBanner(
-      makeStore('token'),
-    );
-    await waitFor(() => {
-      expect(getByText('Release Title')).toBeInTheDocument();
-    });
-    fireEvent.click(document.querySelector('.release-banner .close-button'));
-
-    await waitFor(() => {
-      expect(queryByText('Release Title')).not.toBeInTheDocument();
-    });
-    expect(document.cookie).toContain(`${RELEASE_BANNER_COOKIE}=2.3.0`);
-    unmount();
-
-    const again = renderBanner(makeStore('token'));
-    await waitFor(() => {
-      expect(document.getElementById('releaseId')).toBeInTheDocument();
-    });
-    expect(again.queryByText('Release Title')).not.toBeInTheDocument();
+  it('is hidden when the server has no release notes', async () => {
+    mockNotes({}, false);
+    const { queryByText } = renderBanner(makeStore('token'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    expect(queryByText(/What's new/)).not.toBeInTheDocument();
   });
 
-  it('shows again when the release id changes', async () => {
-    document.cookie = `${RELEASE_BANNER_COOKIE}=2.3.0; path=/`;
-    const { getByText } = renderBanner(makeStore('token', { id: '2.4.0' }));
+  it('ignores a malformed response', async () => {
+    mockNotes({ release: 42, summary: 'x' });
+    const { queryByText } = renderBanner(makeStore('token'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    expect(queryByText(/What's new/)).not.toBeInTheDocument();
+  });
+
+  it('uses a default message when the summary is empty', async () => {
+    mockNotes({ release: 'v2.6.0', summary: '' });
+    const { getByText } = renderBanner(makeStore('token'));
     await waitFor(() => {
-      expect(getByText('Release Title')).toBeInTheDocument();
+      expect(
+        getByText('A new version of this website has been released.'),
+      ).toBeInTheDocument();
     });
   });
 
-  it('renders the message as text, not HTML', async () => {
-    const { getByText } = renderBanner(
-      makeStore('token', {
-        message: '<img src="x" onerror="window.__xss = 1"> Faster search',
-      }),
-    );
+  it('renders the summary as text, not HTML', async () => {
+    mockNotes({
+      release: 'v2.6.0',
+      summary: '<img src="x" onerror="window.__xss = 1"> Faster search',
+    });
+    const { getByText } = renderBanner(makeStore('token'));
     await waitFor(() => {
       expect(
         getByText('<img src="x" onerror="window.__xss = 1"> Faster search'),
@@ -119,5 +119,34 @@ describe('ReleaseBanner', () => {
     });
     expect(document.querySelector('.release-banner img')).toBeNull();
     expect(window.__xss).toBeUndefined();
+  });
+
+  it('stays hidden after close for the same release', async () => {
+    const { getByText, queryByText, unmount } = renderBanner(
+      makeStore('token'),
+    );
+    await waitFor(() => {
+      expect(getByText("What's new in v2.6.0")).toBeInTheDocument();
+    });
+    fireEvent.click(document.querySelector('.release-banner .close-button'));
+    await waitFor(() => {
+      expect(queryByText("What's new in v2.6.0")).not.toBeInTheDocument();
+    });
+    expect(document.cookie).toContain(`${RELEASE_BANNER_COOKIE}=v2.6.0`);
+    unmount();
+
+    const again = renderBanner(makeStore('token'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    await flush();
+    expect(again.queryByText("What's new in v2.6.0")).not.toBeInTheDocument();
+  });
+
+  it('shows again for a new release', async () => {
+    document.cookie = `${RELEASE_BANNER_COOKIE}=v2.6.0; path=/`;
+    mockNotes({ release: 'v2.7.0', summary: 'New map viewer.' });
+    const { getByText } = renderBanner(makeStore('token'));
+    await waitFor(() => {
+      expect(getByText("What's new in v2.7.0")).toBeInTheDocument();
+    });
   });
 });
