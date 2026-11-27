@@ -1,4 +1,5 @@
 import StagingBanner from './StagingBanner';
+import ReleaseBanner from './ReleaseBanner';
 import * as addonReducers from './reducers';
 
 import infoSVG from '@plone/volto/icons/info.svg';
@@ -23,12 +24,26 @@ const applyConfig = (config) => {
       match: '',
       component: StagingBanner,
     },
+    {
+      match: '',
+      component: ReleaseBanner,
+    },
   ];
 
   config.addonReducers = {
     ...config.addonReducers,
     ...addonReducers,
   };
+
+  if (__SERVER__) {
+    // Serves the release notes mounted from the helm chart (fs: server only).
+    const express = require('express');
+    const { releaseNotesMiddleware } = require('./server/releaseNotes');
+    config.settings.expressMiddleware = [
+      ...(config.settings.expressMiddleware || []),
+      releaseNotesMiddleware(express),
+    ];
+  }
 
   return config;
 };
